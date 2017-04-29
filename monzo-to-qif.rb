@@ -19,10 +19,10 @@ command :generate do |c|
   c.option '--folder PATH', String, 'The folder to export to. Defaults to ./exports'
   c.option '--settled_only', String, 'Only export settled transactions'
   c.action do |args, options|
-    since = options.since ? Date.parse(options.since).beginning_of_day : nil
+    since = options.since ? Date.parse(options.since).to_time : nil
     if options.access_token
       transactions = TransactionFetcher.new(options.access_token, options.account_id).fetch(since: since)
-      qif = QifCreator.new(transactions).create(options.folder, settled_only: options.settled_only.present?)
+      qif = QifCreator.new(transactions).create(options.folder, settled_only: options.settled_only)
     else
       say 'Please supply an access_token'
     end

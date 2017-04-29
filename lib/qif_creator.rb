@@ -13,36 +13,43 @@ class QifCreator
     Qif::Writer.open(file.path, type = 'Bank', format = 'dd/mm/yyyy') do |qif|
       total_count = @transactions.size
       @transactions.each_with_index do |transaction, index|
-        print "[#{(index + 1).to_s.rjust(total_count.to_s.length) }/#{total_count}] Exporting [#{transaction.created.to_s(:short)}] #{transaction.id}... "
+
+        transaction.created = DateTime.parse(transaction.created)
+
+        print "[#{(index + 1).to_s.rjust(total_count.to_s.length) }/#{total_count}] Exporting [#{transaction.created.to_s}] #{transaction.id}... "
 
         if transaction.amount.to_i == 0
           puts 'skipped: amount is 0'.light_blue
           next
         end
 
-        if transaction.decline_reason.present?
-          puts 'skipped: declined transaction'.light_blue
+        if transaction.decline_reason
+          puts 'skipped: declined transaction'.red
           next
         end
 
-        if transaction.settled.to_s.empty? && settled_only
+        if transaction.settled.empty? && settled_only
           puts 'skipped: transaction is not settled'.light_blue
           next
         end
 
-        merchant = transaction.merchant
-        suggested_tags = merchant.try(:raw_data).try(:[], 'metadata').try(:[], 'suggested_tags')
+        if transaction.merchant
+          suggested_tags = transaction.merchant.metadata.suggested_tags if transaction.merchant.metadata.suggested_tags
+          memo = transaction.merchant.emoji
+        else
+          suggested_tags = nil
+          memo = ''
+        end
 
-        memo = merchant.try(:emoji) || ''
         memo << " #{transaction.settled.to_s.empty? ? nil : '👍'}"
-        memo << " #{suggested_tags}" if suggested_tags.present?
+        memo << " #{suggested_tags}" if suggested_tags
         memo.strip!
 
         qif << Qif::Transaction.new(
           date: transaction.created,
           amount: transaction.amount,
           memo: memo,
-          payee: merchant.try(:name) || (transaction.is_load ? 'Topup' : 'Unkown')
+          payee: (merchant ? merchant.name : nil) || (transaction.is_load ? 'Topup' : 'Unkown')
         )
 
         puts 'exported'.green

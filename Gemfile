@@ -1,7 +1,7 @@
 source 'https://rubygems.org'
 
+gem 'omnistruct'
 gem 'commander'
-gem 'mondo'
 gem 'qif'
-gem 'oauth2'
 gem 'colorize'
+gem 'rest-client'
