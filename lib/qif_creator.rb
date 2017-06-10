@@ -49,7 +49,7 @@ class QifCreator
           date: transaction.created,
           amount: transaction.amount,
           memo: memo,
-          payee: (merchant ? merchant.name : nil) || (transaction.is_load ? 'Topup' : 'Unkown')
+          payee: (transaction.merchant ? transaction.merchant.name : nil) || (transaction.is_load ? 'Topup' : 'Unkown')
         )
 
         puts 'exported'.green
