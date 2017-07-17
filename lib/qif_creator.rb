@@ -9,7 +9,7 @@ class QifCreator
     path ||= 'exports'
     path.chomp!('/')
 
-    file = File.open("#{path}/#{rand(999)}_#{Time.now.to_i}.qif", "w")
+    file = File.open("#{path}/monzo.qif", "w")
     Qif::Writer.open(file.path, type = 'Bank', format = 'dd/mm/yyyy') do |qif|
       total_count = @transactions.size
       @transactions.each_with_index do |transaction, index|
