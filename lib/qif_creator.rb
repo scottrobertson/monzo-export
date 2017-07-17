@@ -18,7 +18,7 @@ class QifCreator
 
         print "[#{(index + 1).to_s.rjust(total_count.to_s.length) }/#{total_count}] Exporting [#{transaction.created.to_s}] #{transaction.id}... "
 
-        if transaction.amount.to_i == 0
+        if transaction.amount == 0
           puts 'skipped: amount is 0'.light_blue
           next
         end
