@@ -28,7 +28,7 @@ class QifCreator
           next
         end
 
-        if transaction.settled.empty? && settled_only
+        if transaction.settled.empty? && transaction.amount < 0 && settled_only
           puts 'skipped: transaction is not settled'.light_blue
           next
         end
