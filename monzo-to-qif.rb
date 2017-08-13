@@ -21,8 +21,11 @@ command :generate do |c|
   c.action do |args, options|
     since = options.since ? Date.parse(options.since).to_time : nil
     if options.access_token
-      transactions = TransactionFetcher.new(options.access_token, options.account_id).fetch(since: since)
+      fetcher = TransactionFetcher.new(options.access_token, options.account_id)
+      transactions = fetcher.fetch(since: since)
       qif = QifCreator.new(transactions).create(options.folder, settled_only: options.settled_only)
+
+      say "Balance: £#{fetcher.balance}"
     else
       say 'Please supply an access_token'
     end
