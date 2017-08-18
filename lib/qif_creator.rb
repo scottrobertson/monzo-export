@@ -16,7 +16,10 @@ class QifCreator
 
         transaction.created = DateTime.parse(transaction.created)
 
-        print "[#{(index + 1).to_s.rjust(total_count.to_s.length) }/#{total_count}] Exporting [#{transaction.created.to_s}] #{transaction.id}... "
+        amount = (transaction.amount.to_f / 100).abs.to_s.ljust(6, ' ')
+        amount_with_color = transaction.amount > 0 ? amount.green : amount.red
+
+        print "[#{(index + 1).to_s.rjust(total_count.to_s.length) }/#{total_count}] #{transaction.created.to_date.to_s} - #{transaction.id} - #{amount_with_color}  "
 
         if transaction.amount.to_f == 0.0
           puts "skipped: amount is #{transaction.amount}".light_blue
