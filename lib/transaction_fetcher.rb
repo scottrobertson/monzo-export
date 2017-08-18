@@ -25,7 +25,7 @@ class TransactionFetcher
   end
 
   def sort_code
-    @account['account_number']
+    @account['sort_code']
   end
 
   def account_and_sort
