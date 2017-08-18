@@ -25,7 +25,11 @@ command :generate do |c|
       fetcher = TransactionFetcher.new(options.access_token, current_account: options.current_account)
       qif = QifCreator.new(fetcher.fetch(since: since)).create(options.folder, settled_only: options.settled_only, account_number: (fetcher.account_number || 'prepaid'))
 
-      say "Monzo Account: #{fetcher.account_and_sort}" if options.current_account
+      if options.current_account
+        say "Account Number: #{fetcher.account_number}"
+        say "Sort Code: #{fetcher.sort_code}"
+      end
+
       say "Balance: £#{fetcher.balance}"
     else
       say 'Please supply an access_token'

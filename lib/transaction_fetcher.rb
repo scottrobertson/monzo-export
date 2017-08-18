@@ -28,10 +28,6 @@ class TransactionFetcher
     @account['sort_code']
   end
 
-  def account_and_sort
-    "#{sort_code} - #{account_number}"
-  end
-
   private
 
   def http_get(url)
