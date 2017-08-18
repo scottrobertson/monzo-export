@@ -5,11 +5,12 @@ class QifCreator
     @transactions = transactions
   end
 
-  def create(path = nil, settled_only: false)
+  def create(path = nil, settled_only: false, account_number: nil)
     path ||= 'exports'
     path.chomp!('/')
 
-    file = File.open("#{path}/monzo.qif", "w")
+    file = File.open("#{path}/monzo#{account_number ? "_#{account_number}" : nil}.qif", "w")
+
     Qif::Writer.open(file.path, type = 'Bank', format = 'dd/mm/yyyy') do |qif|
       total_count = @transactions.size
       @transactions.each_with_index do |transaction, index|

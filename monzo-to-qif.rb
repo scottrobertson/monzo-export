@@ -23,7 +23,7 @@ command :generate do |c|
     since = options.since ? Date.parse(options.since).to_time : nil
     if options.access_token
       fetcher = TransactionFetcher.new(options.access_token, current_account: options.current_account)
-      qif = QifCreator.new(fetcher.fetch(since: since)).create(options.folder, settled_only: options.settled_only)
+      qif = QifCreator.new(fetcher.fetch(since: since)).create(options.folder, settled_only: options.settled_only, account_number: (fetcher.account_number || 'prepaid'))
 
       say "Monzo Account: #{fetcher.account_and_sort}" if options.current_account
       say "Balance: £#{fetcher.balance}"
