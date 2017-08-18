@@ -7,7 +7,7 @@ class TransactionFetcher
   def initialize(access_token, current_account: false)
     @access_token = access_token
     @account_type = current_account ? "uk_retail" : "uk_prepaid"
-    @account_id = http_get("/accounts?account_type=#{account_type}")['accounts'].first['id']
+    @account_id = http_get("/accounts?account_type=#{@account_type}")['accounts'].first['id']
   end
 
   def fetch(since: 2.weeks.ago)
