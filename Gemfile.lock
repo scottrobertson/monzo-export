@@ -1,27 +1,19 @@
 GEM
   remote: https://rubygems.org/
   specs:
-    activesupport (5.1.4)
-      concurrent-ruby (~> 1.0, >= 1.0.2)
-      i18n (~> 0.7)
-      minitest (~> 5.1)
-      tzinfo (~> 1.1)
     classy_struct (0.3.2)
     colorize (0.8.1)
     commander (4.4.0)
       highline (~> 1.7.2)
-    concurrent-ruby (1.0.5)
     domain_name (0.5.20170404)
       unf (>= 0.0.5, < 1.0.0)
     ffi (1.9.18-x64-mingw32)
     highline (1.7.8)
     http-cookie (1.0.3)
       domain_name (~> 0.5)
-    i18n (0.8.6)
     mime-types (3.1)
       mime-types-data (~> 3.2015)
     mime-types-data (3.2016.0521)
-    minitest (5.10.3)
     netrc (0.11.0)
     omnistruct (1.1.0)
       classy_struct (~> 0.3, >= 0.3.2)
@@ -35,9 +27,6 @@ GEM
       http-cookie (>= 1.0.2, < 2.0)
       mime-types (>= 1.16, < 4.0)
       netrc (~> 0.8)
-    thread_safe (0.3.6)
-    tzinfo (1.2.3)
-      thread_safe (~> 0.1)
     unf (0.1.4)
       unf_ext
     unf_ext (0.0.7.4)
@@ -48,7 +37,6 @@ PLATFORMS
   x64-mingw32
 
 DEPENDENCIES
-  activesupport
   colorize
   commander
   omnistruct
