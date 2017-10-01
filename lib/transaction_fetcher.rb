@@ -11,7 +11,7 @@ class TransactionFetcher
     @account_id = @account['id']
   end
 
-  def fetch(since: 2.weeks.ago)
+  def fetch(since: (Time.now - (60*60*24*14)).to_date)
     transactions = http_get("/transactions?account_id=#{@account_id}&since=#{since.strftime('%FT%TZ')}&expand[]=merchant")
     transactions['transactions'].map{|t| OmniStruct.new(t)}
   end

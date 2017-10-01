@@ -7,6 +7,7 @@ GEM
       highline (~> 1.7.2)
     domain_name (0.5.20170404)
       unf (>= 0.0.5, < 1.0.0)
+    ffi (1.9.18-x64-mingw32)
     highline (1.7.8)
     http-cookie (1.0.3)
       domain_name (~> 0.5)
@@ -21,12 +22,19 @@ GEM
       http-cookie (>= 1.0.2, < 2.0)
       mime-types (>= 1.16, < 4.0)
       netrc (~> 0.8)
+    rest-client (2.0.2-x64-mingw32)
+      ffi (~> 1.9)
+      http-cookie (>= 1.0.2, < 2.0)
+      mime-types (>= 1.16, < 4.0)
+      netrc (~> 0.8)
     unf (0.1.4)
       unf_ext
     unf_ext (0.0.7.4)
+    unf_ext (0.0.7.4-x64-mingw32)
 
 PLATFORMS
   ruby
+  x64-mingw32
 
 DEPENDENCIES
   colorize
@@ -36,4 +44,4 @@ DEPENDENCIES
   rest-client
 
 BUNDLED WITH
-   1.14.6
+   1.15.1
