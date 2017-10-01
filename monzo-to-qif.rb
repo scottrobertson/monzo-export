@@ -5,6 +5,7 @@ require 'commander/import'
 require 'colorize'
 require_relative 'lib/transaction_fetcher'
 require_relative 'lib/qif_creator'
+require 'active_support/core_ext/numeric/time'
 
 program :name, 'Monzo to QIF'
 program :version, '0.0.1'
@@ -20,7 +21,7 @@ command :generate do |c|
   c.option '--settled_only', String, 'Only export settled transactions'
   c.option '--current_account', String, 'Export transactions from the current account instead of the prepaid account'
   c.action do |args, options|
-    since = options.since ? Date.parse(options.since).to_time : nil
+    since = options.since ? Date.parse(options.since).to_time : 2.weeks.ago
     if options.access_token
       fetcher = TransactionFetcher.new(options.access_token, current_account: options.current_account)
       qif = QifCreator.new(fetcher.fetch(since: since)).create(options.folder, settled_only: options.settled_only, account_number: (fetcher.account_number || 'prepaid'))
