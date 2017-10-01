@@ -37,12 +37,12 @@ class QifCreator
           next
         end
 
+        memo = ''
         if transaction.merchant
           suggested_tags = transaction.merchant.metadata.suggested_tags if transaction.merchant.metadata.suggested_tags
-          memo = transaction.merchant.emoji
+          # memo = transaction.merchant.emoji
         else
           suggested_tags = nil
-          memo = ''
         end
 
         memo << " #{transaction.settled.to_s.empty? ? nil : '👍'}"
