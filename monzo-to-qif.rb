@@ -40,3 +40,14 @@ command :generate do |c|
     end
   end
 end
+
+command :auth do |c|
+  c.syntax = 'Monzo to QIF auth [options]'
+  c.summary = 'Configure OAuth for passwordless/tokenless login'
+  c.description = ''
+  c.option '--clientid ID', String, 'Your confidential client ID from: https://developers.monzo.com/'
+  c.option '--clientsecret ID', String, 'Your confidential client secret from: https://developers.monzo.com/'
+  c.option '--authurl URL', String 'The authorization URL you received when you authorized Monzo to QIF from: https://developers.monzo.com/'
+  c.action do |args, options|
+  end
+end
