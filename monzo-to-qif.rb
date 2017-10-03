@@ -5,6 +5,10 @@ require 'commander/import'
 require 'colorize'
 require_relative 'lib/transaction_fetcher'
 require_relative 'lib/qif_creator'
+require 'yaml'
+
+config = YAML.load_file('config.yml')
+puts config['user_data']
 
 program :name, 'Monzo to QIF'
 program :version, '0.0.1'
