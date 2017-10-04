@@ -48,14 +48,25 @@ command :auth do |c|
   c.description = 'This is a 2 step authorization process. Step 1 configures the client and requests an auth code from monzo. Step 2 exchanges the auth code for an auth and refresh token. First run Monzo to QIF auth --clientid ID --clientsecret ID and follow the instructions. Secondly paste the url from the login email as the argument to Monzo to QIF auth --authurl URL'
   c.option '--clientid ID', String, 'Your confidential client ID from: https://developers.monzo.com/'
   c.option '--clientsecret ID', String, 'Your confidential client secret from: https://developers.monzo.com/'
-  c.option '--authurl URL', String, 'The authorization URL you received when you authorized Monzo to QIF from: https://developers.monzo.com/ you will need to escape the & character in the url'
+  c.option '--authurl URL', String, 'The authorization URL you received when you authorized Monzo to QIF from: https://developers.monzo.com/ you will need to enclose the URL in doubl quotes'
   c.action do |args, options|
-    if options.clientid && options.clientsecret
+    if options.clientid && options.clientsecret && !options.authurl
 	  auth = OAuth.new().initialAuth(options.clientid, options.clientsecret)
-	end
-	if options.authurl
-	  urlParams = CGI.parse(URI.parse(options.authurl).query)
-	  auth = OAuth.new().processAuthUrl(urlParams['code'][0], urlParams['state'][0])
-	end
+	else 
+	  if options.authurl && !options.clientid && !options.clientsecret
+	    urlParams = CGI.parse(URI.parse(options.authurl).query)
+	    if !urlParams['code'][0]
+	      say "Badly formatted URL. Missing the code parameter"
+		  abort
+	    end
+	    if !urlParams['state'][0]
+	      say "Badly formatted URL. Missing the state parameter"
+		  abort
+	    end
+	    auth = OAuth.new().processAuthUrl(urlParams['code'][0], urlParams['state'][0])
+	  else
+	    say "Invalid combination of arguments. Use either [--authurl] OR [--clientid AND --clientsecret]"
+	  end
+    end	  
   end
 end
