@@ -10,7 +10,7 @@ class OAuth
   
   def getAccessToken()
 	if !@config['access_token']
-	  puts 'Authorization token not configured'
+	  puts 'OAuth not configured. Please run Monzo to QIF auth.'
     end
 	if Time.now > @config['expiry']
 	  refreshToken(@config['clientId'], @config['clientSecret'], @config['refresh_token'])
