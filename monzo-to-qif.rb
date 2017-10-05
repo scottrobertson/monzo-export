@@ -22,15 +22,15 @@ command :generate do |c|
   c.option '--current_account', String, 'Export transactions from the current account instead of the prepaid account'
   c.action do |args, options|
     since = options.since ? Date.parse(options.since).to_time : (Time.now - (60*60*24*14)).to_date
-	
+
     if options.access_token
-	  accessToken = options.access_token
-	else
-	  auth = OAuth.new()
-	  accessToken = auth.getAccessToken()
-	end
-	
-	fetcher = TransactionFetcher.new(accessToken, current_account: options.current_account)
+      accessToken = options.access_token
+    else
+      auth = OAuth.new()
+      accessToken = auth.getAccessToken()
+    end
+
+    fetcher = TransactionFetcher.new(accessToken, current_account: options.current_account)
     qif = QifCreator.new(fetcher.fetch(since: since)).create(options.folder, settled_only: options.settled_only, account_number: (fetcher.account_number || 'prepaid'))
 
     if options.current_account
@@ -51,22 +51,22 @@ command :auth do |c|
   c.option '--authurl URL', String, 'The authorization URL you received when you authorized Monzo to QIF from: https://developers.monzo.com/ you will need to enclose the URL in doubl quotes'
   c.action do |args, options|
     if options.clientid && options.clientsecret && !options.authurl
-	  auth = OAuth.new().initialAuth(options.clientid, options.clientsecret)
-	else 
-	  if options.authurl && !options.clientid && !options.clientsecret
-	    urlParams = CGI.parse(URI.parse(options.authurl).query)
-	    if !urlParams['code'][0]
-	      say "Badly formatted URL. Missing the code parameter"
-		  abort
-	    end
-	    if !urlParams['state'][0]
-	      say "Badly formatted URL. Missing the state parameter"
-		  abort
-	    end
-	    auth = OAuth.new().processAuthUrl(urlParams['code'][0], urlParams['state'][0])
-	  else
-	    say "Invalid combination of arguments. Use either [--authurl] OR [--clientid AND --clientsecret]"
-	  end
-    end	  
+      auth = OAuth.new().initialAuth(options.clientid, options.clientsecret)
+    else 
+      if options.authurl && !options.clientid && !options.clientsecret
+        urlParams = CGI.parse(URI.parse(options.authurl).query)
+        if !urlParams['code'][0]
+          say "Badly formatted URL. Missing the code parameter"
+          abort
+        end
+        if !urlParams['state'][0]
+          say "Badly formatted URL. Missing the state parameter"
+          abort
+        end
+        auth = OAuth.new().processAuthUrl(urlParams['code'][0], urlParams['state'][0])
+      else
+        say "Invalid combination of arguments. Use either [--authurl] OR [--clientid AND --clientsecret]"
+      end
+    end
   end
 end
