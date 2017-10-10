@@ -3,13 +3,14 @@ require 'rest-client'
 
 class OAuth
   def initialize()
-    @redirectURI = 'http://localhost/monzotoqif/'
+    @redirectURI = 'http://localhost/monzo-export'
     @config = File.file?('config.yml') ? YAML.load_file('config.yml') : {}
   end
 
   def getAccessToken()
     unless @config['access_token']
-      say 'OAuth not configured. Please run Monzo to QIF auth'
+      say 'OAuth not configured. Please run the following command'
+      say 'ruby monzo-export.rb auth --clientid {clientID} --clientsecret {clientSecret}'
       abort
     end
 
@@ -28,7 +29,7 @@ class OAuth
   def initialAuth(clientId, clientSecret)
     @config['clientId'] = clientId
     @config['clientSecret'] = clientSecret
-    @config['state'] = SecureRandom.urlsafe_base64(64)
+    @config['state'] = SecureRandom.hex
     saveConfig()
     say "Open the following URL in a browser and follow the instructions. When you recieve the response email, copy the url and pass it to the --authurl parameter"
     say "https://auth.getmondo.co.uk/?client_id=#{clientId}&redirect_uri=#{@redirectURI}&response_type=code&state=#{@config['state']}"
@@ -44,7 +45,20 @@ class OAuth
   end
 
   def exchangeAuthCode(clientId, clientSecret, redirectURI, authCode)
-    json = JSON.parse(RestClient.post("https://api.monzo.com/oauth2/token", {grant_type: 'authorization_code', client_id: @config['clientId'], client_secret: @config['clientSecret'], redirect_uri: @redirectURI, code: authCode}))
+    begin
+      response = RestClient.post("https://api.monzo.com/oauth2/token", {
+        grant_type: 'authorization_code',
+        client_id: clientId,
+        client_secret: clientSecret,
+        redirect_uri: redirectURI,
+        code: authCode
+      })
+
+      json = JSON.parse(response)
+    rescue => e
+      raise e.response.to_yaml
+    end
+
     @config['access_token'] = json['access_token']
 
     # non-confidential clients won't return a refresh token
