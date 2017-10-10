@@ -54,8 +54,8 @@ class CsvCreator
 
         csv << [
           transaction.created.strftime("%d/%m/%y"),
+          (transaction.merchant ? transaction.merchant.name : nil) || (transaction.is_load ? 'Topup' : 'Unkown'),
           transaction.amount.to_f / 100,
-          (transaction.merchant ? transaction.merchant.name : nil) || (transaction.is_load ? 'Topup' : 'Unkown')
         ]
 
         puts 'exported'.green
