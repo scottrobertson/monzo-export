@@ -27,12 +27,24 @@ class OAuth
   end
 
   def initialAuth(clientId, clientSecret)
+    if clientId.nil? || clientSecret.nil?
+      say 'client_id and client_secret are required'
+      return
+    end
+
     @config['clientId'] = clientId
     @config['clientSecret'] = clientSecret
     @config['state'] = SecureRandom.hex
+
     saveConfig()
-    say "Open the following URL in a browser and follow the instructions. When you recieve the response email, copy the url and pass it to the --authurl parameter"
+
+    say "Open the following URL in a browser and follow the instructions."
+    puts ''
     say "https://auth.getmondo.co.uk/?client_id=#{clientId}&redirect_uri=#{@redirectURI}&response_type=code&state=#{@config['state']}"
+    puts ''
+    say "Once you receive the email, please copy the 'Login to Monzo' URL and run the following command"
+    puts ''
+    say 'ruby monzo-export.rb authurl --url #{the_url}'
   end
 
   def processAuthUrl(authCode, state)
@@ -67,8 +79,11 @@ class OAuth
     end
 
     @config['expiry'] = Time.now + json['expires_in'] - 120
-    @config['state'] = ''
+    @config['state'] = nil
+
     saveConfig
+
+    say 'Config Saved'
   end
 
   def refreshToken(clientId, clientSecret, refreshToken)
