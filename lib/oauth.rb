@@ -44,7 +44,7 @@ class OAuth
     puts ''
     say "Once you receive the email, please copy the 'Login to Monzo' URL and run the following command"
     puts ''
-    say 'ruby monzo-export.rb authurl --url #{the_url}'
+    say 'ruby monzo-export.rb authurl --url #{link-from-email}'
   end
 
   def processAuthUrl(authCode, state)

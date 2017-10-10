@@ -37,7 +37,7 @@ ruby monzo-export.rb auth --clientid {clientID} --clientsecret {clientSecret}
 
 This will prompt you to browse to the Monzo auth url in your browser to obtain your authorization code. Completing this workflow will result in Monzo sending you an email with a login link. You need to copy this link and use it in the next command.
 ```
-ruby monzo-export.rb auth --authurl {link-from-email}
+ruby monzo-export.rb authurl --url {link-from-email}
 ```
 
 This completes the setup, retrieves and stores the access token.
