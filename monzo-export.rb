@@ -5,6 +5,7 @@ require 'commander/import'
 require 'colorize'
 require_relative 'lib/transaction_fetcher'
 require_relative 'lib/qif_creator'
+require_relative 'lib/csv_creator'
 require_relative 'lib/oauth'
 
 program :name, 'Monzo Export'
@@ -12,7 +13,7 @@ program :version, '0.0.1'
 program :description, 'Create QIF files from your Monzo account'
 
 command :qif do |c|
-  c.syntax = 'Monzo to QIF generate [options]'
+  c.syntax = 'monzo-export qif [options]'
   c.summary = 'Generate the QIF file'
   c.description = ''
   c.option '--access_token TOKEN', String, 'Your access token from: https://developers.monzo.com/'
@@ -31,7 +32,38 @@ command :qif do |c|
     end
 
     fetcher = TransactionFetcher.new(accessToken, current_account: options.current_account)
-    qif = QifCreator.new(fetcher.fetch(since: since)).create(options.folder, settled_only: options.settled_only, account_number: (fetcher.account_number || 'prepaid'))
+    QifCreator.new(fetcher.fetch(since: since)).create(options.folder, settled_only: options.settled_only, account_number: (fetcher.account_number || 'prepaid'))
+
+    if options.current_account
+      say "Account Number: #{fetcher.account_number}"
+      say "Sort Code: #{fetcher.sort_code}"
+    end
+
+    say "Balance: £#{fetcher.balance}"
+  end
+end
+
+command :csv do |c|
+  c.syntax = 'monzo-export csv [options]'
+  c.summary = 'Generate the CSV file'
+  c.description = ''
+  c.option '--access_token TOKEN', String, 'Your access token from: https://developers.monzo.com/'
+  c.option '--since DATE', String, 'The date (YYYY-MM-DD) to start exporting transactions from. Defaults to 2 weeks ago'
+  c.option '--folder PATH', String, 'The folder to export to. Defaults to ./exports'
+  c.option '--settled_only', String, 'Only export settled transactions'
+  c.option '--current_account', String, 'Export transactions from the current account instead of the prepaid account'
+  c.action do |args, options|
+    since = options.since ? Date.parse(options.since).to_time : (Time.now - (60*60*24*14)).to_date
+
+    if options.access_token
+      accessToken = options.access_token
+    else
+      auth = OAuth.new()
+      accessToken = auth.getAccessToken()
+    end
+
+    fetcher = TransactionFetcher.new(accessToken, current_account: options.current_account)
+    CsvCreator.new(fetcher.fetch(since: since)).create(options.folder, settled_only: options.settled_only, account_number: (fetcher.account_number || 'prepaid'))
 
     if options.current_account
       say "Account Number: #{fetcher.account_number}"
