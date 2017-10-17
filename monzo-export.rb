@@ -15,7 +15,6 @@ program :description, 'Create QIF files from your Monzo account'
 command :qif do |c|
   c.syntax = 'monzo-export qif [options]'
   c.summary = 'Generate the QIF file'
-  c.description = ''
   c.option '--access_token TOKEN', String, 'Your access token from: https://developers.monzo.com/'
   c.option '--since DATE', String, 'The date (YYYY-MM-DD) to start exporting transactions from. Defaults to 2 weeks ago'
   c.option '--folder PATH', String, 'The folder to export to. Defaults to ./exports'
@@ -23,16 +22,28 @@ command :qif do |c|
   c.option '--current_account', String, 'Export transactions from the current account instead of the prepaid account'
   c.action do |args, options|
     since = options.since ? Date.parse(options.since).to_time : (Time.now - (60*60*24*14)).to_date
+    access_token = options.access_token || OAuth.new.getAccessToken
+    fetcher = TransactionFetcher.new(access_token, current_account: options.current_account)
+    QifCreator.new(fetcher.fetch(since: since)).create(options.folder, settled_only: options.settled_only, account_number: (fetcher.account_number || 'prepaid'))
 
-    if options.access_token
-      accessToken = options.access_token
-    else
-      auth = OAuth.new()
-      accessToken = auth.getAccessToken()
+    if options.current_account
+      say "Account Number: #{fetcher.account_number}"
+      say "Sort Code: #{fetcher.sort_code}"
     end
 
-    fetcher = TransactionFetcher.new(accessToken, current_account: options.current_account)
-    QifCreator.new(fetcher.fetch(since: since)).create(options.folder, settled_only: options.settled_only, account_number: (fetcher.account_number || 'prepaid'))
+    say "Balance: £#{fetcher.balance}"
+  end
+end
+
+command :balance do |c|
+  c.syntax = 'monzo-export balance [options]'
+  c.summary = 'Show the balance'
+  c.option '--access_token TOKEN', String, 'Your access token from: https://developers.monzo.com/'
+  c.option '--current_account', String, 'Export transactions from the current account instead of the prepaid account'
+
+  c.action do |args, options|
+    access_token = options.access_token || OAuth.new.getAccessToken
+    fetcher = TransactionFetcher.new(access_token, current_account: options.current_account)
 
     if options.current_account
       say "Account Number: #{fetcher.account_number}"
@@ -46,7 +57,6 @@ end
 command :csv do |c|
   c.syntax = 'monzo-export csv [options]'
   c.summary = 'Generate the CSV file'
-  c.description = ''
   c.option '--access_token TOKEN', String, 'Your access token from: https://developers.monzo.com/'
   c.option '--since DATE', String, 'The date (YYYY-MM-DD) to start exporting transactions from. Defaults to 2 weeks ago'
   c.option '--folder PATH', String, 'The folder to export to. Defaults to ./exports'
@@ -54,15 +64,8 @@ command :csv do |c|
   c.option '--current_account', String, 'Export transactions from the current account instead of the prepaid account'
   c.action do |args, options|
     since = options.since ? Date.parse(options.since).to_time : (Time.now - (60*60*24*14)).to_date
-
-    if options.access_token
-      accessToken = options.access_token
-    else
-      auth = OAuth.new()
-      accessToken = auth.getAccessToken()
-    end
-
-    fetcher = TransactionFetcher.new(accessToken, current_account: options.current_account)
+    access_token = options.access_token || OAuth.new.getAccessToken
+    fetcher = TransactionFetcher.new(access_token, current_account: options.current_account)
     CsvCreator.new(fetcher.fetch(since: since)).create(options.folder, settled_only: options.settled_only, account_number: (fetcher.account_number || 'prepaid'))
 
     if options.current_account
@@ -105,6 +108,6 @@ command :auth do |c|
   c.option '--clientid ID', String, 'Your confidential client ID from: https://developers.monzo.com/'
   c.option '--clientsecret ID', String, 'Your confidential client secret from: https://developers.monzo.com/'
   c.action do |args, options|
-    OAuth.new().initialAuth(options.clientid, options.clientsecret)
+    OAuth.new.initialAuth(options.clientid, options.clientsecret)
   end
 end
