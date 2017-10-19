@@ -52,7 +52,7 @@ class QifCreator
         qif << Qif::Transaction.new(
           date: transaction.created,
           amount: transaction.amount.to_f / 100,
-          memo: transaction.description,
+          memo: memo,
           payee: (transaction.merchant ? transaction.merchant.name : nil) || (transaction.is_load ? 'Topup' : 'Unknown')
         )
 
