@@ -13,6 +13,8 @@ class TransactionFetcher
 
   def fetch(since: (Time.now - (60*60*24*14)).to_date)
     transactions = http_get("/transactions?account_id=#{@account_id}&since=#{since.strftime('%FT%TZ')}&expand[]=merchant")
+    # delete the fees children as they contain an unparsable key (withdrawal.atm.international)
+    transactions['transactions'].each {|x| x.delete_if {|y| y == "fees"}}
     transactions['transactions'].map{|t| OmniStruct.new(t)}
   end
 
