@@ -2,9 +2,10 @@ require 'yaml'
 require 'rest-client'
 
 class OAuth
-  def initialize()
+  def initialize(configFile)
+    @configFile = configFile
     @redirectURI = 'http://localhost/monzo-export'
-    @config = File.file?('config.yml') ? YAML.load_file('config.yml') : {}
+    @config = File.file?(@configFile) ? YAML.load_file(@configFile) : {}
   end
 
   def getAccessToken()
@@ -96,6 +97,6 @@ class OAuth
   end
 
   def saveConfig()
-    File.write('config.yml', @config.to_yaml)
+    File.write(@configFile, @config.to_yaml)
   end
 end

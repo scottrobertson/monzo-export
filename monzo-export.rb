@@ -20,9 +20,11 @@ command :qif do |c|
   c.option '--folder PATH', String, 'The folder to export to. Defaults to ./exports'
   c.option '--settled_only', String, 'Only export settled transactions'
   c.option '--current_account', String, 'Export transactions from the current account instead of the prepaid account'
+  c.option '--config_file FILE', String, 'Optional config filename'
   c.action do |args, options|
     since = options.since ? Date.parse(options.since).to_time : (Time.now - (60*60*24*14)).to_date
-    access_token = options.access_token || OAuth.new.getAccessToken
+    config = options.config_file ? options.config_file : 'config.yml'
+    access_token = options.access_token || OAuth.new(config).getAccessToken
     fetcher = TransactionFetcher.new(access_token, current_account: options.current_account)
     QifCreator.new(fetcher.fetch(since: since)).create(options.folder, settled_only: options.settled_only, account_number: (fetcher.account_number || 'prepaid'))
 
@@ -40,9 +42,10 @@ command :balance do |c|
   c.summary = 'Show the balance'
   c.option '--access_token TOKEN', String, 'Your access token from: https://developers.monzo.com/'
   c.option '--current_account', String, 'Export transactions from the current account instead of the prepaid account'
-
+  c.option '--config_file FILE', String, 'Optional config filename'
   c.action do |args, options|
-    access_token = options.access_token || OAuth.new.getAccessToken
+    config = options.config_file ? options.config_file : 'config.yml'
+    access_token = options.access_token || OAuth.new(config).getAccessToken
     fetcher = TransactionFetcher.new(access_token, current_account: options.current_account)
 
     if options.current_account
@@ -62,19 +65,23 @@ command :csv do |c|
   c.option '--folder PATH', String, 'The folder to export to. Defaults to ./exports'
   c.option '--settled_only', String, 'Only export settled transactions'
   c.option '--current_account', String, 'Export transactions from the current account instead of the prepaid account'
+  c.option '--config_file FILE', String, 'Optional config filename'
   c.action do |args, options|
     since = options.since ? Date.parse(options.since).to_time : (Time.now - (60*60*24*14)).to_date
-    access_token = options.access_token || OAuth.new.getAccessToken
+    config = options.config_file ? options.config_file : 'config.yml'
+    access_token = options.access_token || OAuth.new(config).getAccessToken
     fetcher = TransactionFetcher.new(access_token, current_account: options.current_account)
     CsvCreator.new(fetcher.fetch(since: since)).create(options.folder, settled_only: options.settled_only, account_number: (fetcher.account_number || 'prepaid'))
   end
 end
 
 command :authurl do |c|
-  c.syntax = 'Monzo to QIF auth_url [options]'
+  c.syntax = 'monzo-export auth_url [options]'
   c.summary = 'Configure OAuth for passwordless/tokenless login'
-  c.option '--url URL', String, 'The authorization URL you received when you authorized Monzo to QIF from: https://developers.monzo.com/ you will need to enclose the URL in doubl quotes'
+  c.option '--url URL', String, 'The authorization URL you received when you authorized Monzo Export from: https://developers.monzo.com/ you will need to enclose the URL in double quotes'
+  c.option '--config_file FILE', String, 'Optional config filename'
   c.action do |args, options|
+    config = options.config_file ? options.config_file : 'config.yml'
     if options.url
       urlParams = CGI.parse(URI.parse(options.url).query)
 
@@ -88,7 +95,7 @@ command :authurl do |c|
         abort
       end
 
-      auth = OAuth.new.processAuthUrl(urlParams['code'][0], urlParams['state'][0])
+      auth = OAuth.new(config).processAuthUrl(urlParams['code'][0], urlParams['state'][0])
     else
       say "authcode is required"
     end
@@ -96,11 +103,13 @@ command :authurl do |c|
 end
 
 command :auth do |c|
-  c.syntax = 'Monzo to QIF auth [options]'
+  c.syntax = 'monzo-export auth [options]'
   c.summary = 'Configure OAuth for passwordless/tokenless login'
   c.option '--clientid ID', String, 'Your confidential client ID from: https://developers.monzo.com/'
   c.option '--clientsecret ID', String, 'Your confidential client secret from: https://developers.monzo.com/'
+  c.option '--config_file FILE', String, 'Optional config filename'
   c.action do |args, options|
-    OAuth.new.initialAuth(options.clientid, options.clientsecret)
+    config = options.config_file ? options.config_file : 'config.yml'
+    OAuth.new(config).initialAuth(options.clientid, options.clientsecret)
   end
 end
