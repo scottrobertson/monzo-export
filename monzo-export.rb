@@ -67,13 +67,6 @@ command :csv do |c|
     access_token = options.access_token || OAuth.new.getAccessToken
     fetcher = TransactionFetcher.new(access_token, current_account: options.current_account)
     CsvCreator.new(fetcher.fetch(since: since)).create(options.folder, settled_only: options.settled_only, account_number: (fetcher.account_number || 'prepaid'))
-
-    if options.current_account
-      say "Account Number: #{fetcher.account_number}"
-      say "Sort Code: #{fetcher.sort_code}"
-    end
-
-    say "Balance: £#{fetcher.balance}"
   end
 end
 
