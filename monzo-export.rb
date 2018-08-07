@@ -37,6 +37,16 @@ command :qif do |c|
   end
 end
 
+command :token do |c|
+  c.syntax = 'monzo-export token'
+  c.summary = 'Token'
+  c.action do |args, options|
+    config = options.config_file ? options.config_file : 'config.yml'
+    access_token = options.access_token || OAuth.new(config).getAccessToken
+    puts access_token
+  end
+end
+
 command :balance do |c|
   c.syntax = 'monzo-export balance [options]'
   c.summary = 'Show the balance'
