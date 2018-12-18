@@ -17,13 +17,6 @@ ruby monzo-export.rb csv --access_token=$MONZO --since=2016-10-10 --folder=/path
 ruby monzo-export.rb qif --access_token=$MONZO --since=2016-10-10 --folder=/path/to/folder
 ```
 
-#### Quick Start Current Account
-
-```
-MONZO=token from https://developers.monzo.com/
-ruby monzo-export.rb qif --access_token=$MONZO --since=2016-10-10 --folder=/path/to/folder --current_account
-```
-
 ### OAuth Configuration
 
 This allows you to use a token from a client you set up on `https://developers.monzo.com/` and then omit the `--access_token` argument.
