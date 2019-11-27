@@ -4,11 +4,18 @@ require 'json'
 require 'rest-client'
 
 class TransactionFetcher
-  def initialize(access_token, current_account: false)
+  def initialize(access_token, account_id: nil)
     @access_token = access_token
-    @account_type = current_account ? "uk_retail" : "uk_prepaid"
-    @account = http_get("/accounts?account_type=#{@account_type}")['accounts'].first
-    @account_id = @account['id']
+
+    accounts =  http_get("/accounts")['accounts']
+
+    if account_id.nil?
+      @account = accounts.first
+      @account_id = @account['id']
+    else
+      @account_id = account_id
+      @account = accounts.find{|a| a['id'] == account_id }
+    end
   end
 
   def fetch(since: (Time.now - (60*60*24*14)).to_date)

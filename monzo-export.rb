@@ -19,19 +19,18 @@ command :qif do |c|
   c.option '--since DATE', String, 'The date (YYYY-MM-DD) to start exporting transactions from. Defaults to 2 weeks ago'
   c.option '--folder PATH', String, 'The folder to export to. Defaults to ./exports'
   c.option '--settled_only', String, 'Only export settled transactions'
-  c.option '--current_account', String, 'Export transactions from the current account instead of the prepaid account'
+  c.option '--account_id', String, 'Export transactions from a specific account id'
   c.option '--config_file FILE', String, 'Optional config filename'
   c.action do |args, options|
     since = options.since ? Date.parse(options.since).to_time : (Time.now - (60*60*24*14)).to_date
     config = options.config_file ? options.config_file : 'config.yml'
     access_token = options.access_token || OAuth.new(config).getAccessToken
-    fetcher = TransactionFetcher.new(access_token, current_account: options.current_account)
+
+    fetcher = TransactionFetcher.new(access_token, account_id: options.account_id)
     QifCreator.new(fetcher.fetch(since: since)).create(options.folder, settled_only: options.settled_only, account_number: (fetcher.account_number || 'prepaid'))
 
-    if options.current_account
-      say "Account Number: #{fetcher.account_number}"
-      say "Sort Code: #{fetcher.sort_code}"
-    end
+    say "Account Number: #{fetcher.account_number}"
+    say "Sort Code: #{fetcher.sort_code}"
 
     say "Balance: £#{fetcher.balance}"
   end
@@ -51,18 +50,12 @@ command :balance do |c|
   c.syntax = 'monzo-export balance [options]'
   c.summary = 'Show the balance'
   c.option '--access_token TOKEN', String, 'Your access token from: https://developers.monzo.com/'
-  c.option '--current_account', String, 'Export transactions from the current account instead of the prepaid account'
+  c.option '--account_id ACCOUNT_ID', String, 'Export transactions a specific account'
   c.option '--config_file FILE', String, 'Optional config filename'
   c.action do |args, options|
     config = options.config_file ? options.config_file : 'config.yml'
     access_token = options.access_token || OAuth.new(config).getAccessToken
-    fetcher = TransactionFetcher.new(access_token, current_account: options.current_account)
-
-    if options.current_account
-      say "Account Number: #{fetcher.account_number}"
-      say "Sort Code: #{fetcher.sort_code}"
-    end
-
+    fetcher = TransactionFetcher.new(access_token, account_id: options.account_id)
     say "Balance: £#{fetcher.balance}"
   end
 end
@@ -74,13 +67,13 @@ command :csv do |c|
   c.option '--since DATE', String, 'The date (YYYY-MM-DD) to start exporting transactions from. Defaults to 2 weeks ago'
   c.option '--folder PATH', String, 'The folder to export to. Defaults to ./exports'
   c.option '--settled_only', String, 'Only export settled transactions'
-  c.option '--current_account', String, 'Export transactions from the current account instead of the prepaid account'
+  c.option '--account_id', String, 'Export transactions from a specific account'
   c.option '--config_file FILE', String, 'Optional config filename'
   c.action do |args, options|
     since = options.since ? Date.parse(options.since).to_time : (Time.now - (60*60*24*14)).to_date
     config = options.config_file ? options.config_file : 'config.yml'
     access_token = options.access_token || OAuth.new(config).getAccessToken
-    fetcher = TransactionFetcher.new(access_token, current_account: options.current_account)
+    fetcher = TransactionFetcher.new(access_token, account_id: options.account_id)
     CsvCreator.new(fetcher.fetch(since: since)).create(options.folder, settled_only: options.settled_only, account_number: (fetcher.account_number || 'prepaid'))
   end
 end
