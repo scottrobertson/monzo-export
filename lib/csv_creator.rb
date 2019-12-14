@@ -1,4 +1,9 @@
 require 'csv'
+require 'money'
+
+I18n.enforce_available_locales = false
+Money.locale_backend = :currency
+Money.rounding_mode = BigDecimal::ROUND_HALF_UP
 
 class CsvCreator
   def initialize(transactions)
@@ -13,7 +18,7 @@ class CsvCreator
 
     CSV.open(file, "wb") do |csv|
 
-      csv << [:date, :description, :amount]
+      csv << [:date, :description, :memo, :amount]
 
       total_count = @transactions.size
       @transactions.each_with_index do |transaction, index|
@@ -48,16 +53,19 @@ class CsvCreator
           memo = ''
         end
 
+        foreign_transaction = transaction.local_currency != transaction.currency
+        if foreign_transaction
+          money = ::Money.new(transaction.local_amount.abs, transaction.local_currency)
+          memo.prepend("(#{money.format}) ")
+        end
+
         merchant_name = transaction.merchant ? transaction.merchant.name : nil
         merchant_name ||= transaction.counterparty ? transaction.counterparty.name : nil
-
-        memo << " #{transaction.settled.to_s.empty? ? nil : '👍'}"
-        memo << " #{suggested_tags}" if suggested_tags
-        memo.strip!
 
         csv << [
           transaction.created.strftime("%d/%m/%Y"),
           merchant_name,
+          memo.strip,
           transaction.amount.to_f / 100,
         ]
 
