@@ -67,7 +67,7 @@ command :csv do |c|
   c.option '--since DATE', String, 'The date (YYYY-MM-DD) to start exporting transactions from. Defaults to 2 weeks ago'
   c.option '--folder PATH', String, 'The folder to export to. Defaults to ./exports'
   c.option '--settled_only', String, 'Only export settled transactions'
-  c.option '--account_id', String, 'Export transactions from a specific account'
+  c.option '--account_id ACCOUNT_ID', String, 'Export transactions from a specific account'
   c.option '--config_file FILE', String, 'Optional config filename'
   c.action do |args, options|
     since = options.since ? Date.parse(options.since).to_time : (Time.now - (60*60*24*14)).to_date
