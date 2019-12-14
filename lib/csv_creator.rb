@@ -48,13 +48,16 @@ class CsvCreator
           memo = ''
         end
 
+        merchant_name = transaction.merchant ? transaction.merchant.name : nil
+        merchant_name ||= transaction.counterparty ? transaction.counterparty.name : nil
+
         memo << " #{transaction.settled.to_s.empty? ? nil : '👍'}"
         memo << " #{suggested_tags}" if suggested_tags
         memo.strip!
 
         csv << [
-          transaction.created.strftime("%d/%m/%y"),
-          (transaction.merchant ? transaction.merchant.name : nil) || (transaction.is_load ? 'Topup' : 'Unknown'),
+          transaction.created.strftime("%d/%m/%Y"),
+          merchant_name,
           transaction.amount.to_f / 100,
         ]
 
