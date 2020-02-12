@@ -19,19 +19,17 @@ command :qif do |c|
   c.option '--since DATE', String, 'The date (YYYY-MM-DD) to start exporting transactions from. Defaults to 2 weeks ago'
   c.option '--folder PATH', String, 'The folder to export to. Defaults to ./exports'
   c.option '--settled_only', String, 'Only export settled transactions'
-  c.option '--prepaid_account', String, 'Export transactions from the prepaid account instead of any current accounts'
+  c.option '--joint_account', String, 'Export transactions from the joint account instead of any personal accounts'
   c.option '--config_file FILE', String, 'Optional config filename'
   c.action do |args, options|
     since = options.since ? Date.parse(options.since).to_time : (Time.now - (60*60*24*14)).to_date
     config = options.config_file ? options.config_file : 'config.yml'
     access_token = options.access_token || OAuth.new(config).getAccessToken
-    fetcher = TransactionFetcher.new(access_token, current_account: !options.prepaid_account)
-    QifCreator.new(fetcher.fetch(since: since)).create(options.folder, settled_only: options.settled_only, account_number: (fetcher.account_number || 'prepaid'))
+    fetcher = TransactionFetcher.new(access_token, joint_account: options.joint_account)
+    QifCreator.new(fetcher.fetch(since: since)).create(options.folder, settled_only: options.settled_only, account_number: fetcher.account_number)
 
-    if options.current_account
-      say "Account Number: #{fetcher.account_number}"
-      say "Sort Code: #{fetcher.sort_code}"
-    end
+    say "Account Number: #{fetcher.account_number}"
+    say "Sort Code: #{fetcher.sort_code}"
 
     say "Balance: £#{fetcher.balance}"
   end
@@ -41,17 +39,15 @@ command :balance do |c|
   c.syntax = 'monzo-export balance [options]'
   c.summary = 'Show the balance'
   c.option '--access_token TOKEN', String, 'Your access token from: https://developers.monzo.com/'
-  c.option '--prepaid_account', String, 'Export transactions from the prepaid account instead of any current accounts'
+  c.option '--joint_account', String, 'Export transactions from the joint account instead of any personal accounts'
   c.option '--config_file FILE', String, 'Optional config filename'
   c.action do |args, options|
     config = options.config_file ? options.config_file : 'config.yml'
     access_token = options.access_token || OAuth.new(config).getAccessToken
-    fetcher = TransactionFetcher.new(access_token, current_account: !options.prepaid_account)
+    fetcher = TransactionFetcher.new(access_token, joint_account: options.joint_account)
 
-    if options.current_account
-      say "Account Number: #{fetcher.account_number}"
-      say "Sort Code: #{fetcher.sort_code}"
-    end
+    say "Account Number: #{fetcher.account_number}"
+    say "Sort Code: #{fetcher.sort_code}"
 
     say "Balance: £#{fetcher.balance}"
   end
@@ -64,14 +60,14 @@ command :csv do |c|
   c.option '--since DATE', String, 'The date (YYYY-MM-DD) to start exporting transactions from. Defaults to 2 weeks ago'
   c.option '--folder PATH', String, 'The folder to export to. Defaults to ./exports'
   c.option '--settled_only', String, 'Only export settled transactions'
-  c.option '--prepaid_account', String, 'Export transactions from the prepaid account instead of any current accounts'
+  c.option '--joint_account', String, 'Export transactions from the joint account instead of any personal accounts'
   c.option '--config_file FILE', String, 'Optional config filename'
   c.action do |args, options|
     since = options.since ? Date.parse(options.since).to_time : (Time.now - (60*60*24*14)).to_date
     config = options.config_file ? options.config_file : 'config.yml'
     access_token = options.access_token || OAuth.new(config).getAccessToken
-    fetcher = TransactionFetcher.new(access_token, current_account: !options.prepaid_account)
-    CsvCreator.new(fetcher.fetch(since: since)).create(options.folder, settled_only: options.settled_only, account_number: (fetcher.account_number || 'prepaid'))
+    fetcher = TransactionFetcher.new(access_token, joint_account: options.joint_account)
+    CsvCreator.new(fetcher.fetch(since: since)).create(options.folder, settled_only: options.settled_only, account_number: fetcher.account_number)
   end
 end
 

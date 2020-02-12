@@ -4,9 +4,9 @@ require 'json'
 require 'rest-client'
 
 class TransactionFetcher
-  def initialize(access_token, current_account: false)
+  def initialize(access_token, joint_account: false)
     @access_token = access_token
-    @account_type = current_account ? "uk_retail" : "uk_prepaid"
+    @account_type = joint_account ? "uk_retail_joint" : "uk_retail"
     @account = http_get("/accounts?account_type=#{@account_type}")['accounts'].first
     @account_id = @account['id']
   end
